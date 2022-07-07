@@ -1,0 +1,64 @@
+- hosts: web-server
+  remote_user: ubuntu
+  become: true
+  become_method: sudo
+  #gather_facts: no
+   
+  tasks:
+   - name: Update all packages
+     apt: 
+       update_cache: yes
+       name: "*"
+       state: latest
+###
+   - name: Install dependencies
+     apt: 
+      pkg:
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+        - htop
+
+   - name: Add an apt key
+     ansible.builtin.apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+      keyring: /etc/apt/trusted.gpg.d/docker.gpg
+
+   - name: Install docker repo
+     ansible.builtin.apt_repository:
+       repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+       state: present
+       filename: docker
+   
+   - name: Install docker
+     apt:
+       pkg:
+         - docker-ce
+         - docker-ce-cli
+         - containerd.io
+         - docker-compose-plugin
+###
+   - name: Install git
+     apt: 
+      pkg:
+        - git-all
+###
+   - name: Install git repo
+     ansible.builtin.git:
+       repo: https://github.com/asta-nil/flask
+       dest: /home/ubuntu/flask
+       update: yes
+       force: yes
+     
+###
+   - name: Adding .env file
+     ansible.builtin.shell:
+       cmd: cp .env.example .env
+       chdir: /home/ubuntu/flask/app
+
+   - name: Start project
+     ansible.builtin.shell:
+       cmd: docker compose up -d
+       chdir: /home/ubuntu/flask
