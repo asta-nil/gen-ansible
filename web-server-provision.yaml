@@ -19,6 +19,7 @@
         - gnupg
         - lsb-release
         - htop
+        - git-all
 
    - name: Add an apt key
      ansible.builtin.apt_key:
@@ -39,11 +40,7 @@
          - docker-ce-cli
          - containerd.io
          - docker-compose-plugin
-###
-   - name: Install git
-     apt: 
-      pkg:
-        - git-all
+        
 ###
    - name: Install git repo
      ansible.builtin.git:
@@ -54,9 +51,10 @@
      
 ###
    - name: Adding .env file
-     ansible.builtin.shell:
-       cmd: cp .env.example .env
-       chdir: /home/ubuntu/flask/app
+     ansible.builtin.copy:
+       src: /home/ubuntu/flask/app/.env.example
+       dest: /home/ubuntu/flask/app/.env
+       remote_src: yes
 
    - name: Start project
      ansible.builtin.shell:
