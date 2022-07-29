@@ -1,0 +1,23 @@
+master-server
+
+CREATE user 'replica@172.31.%.%' IDENTIFIED WITH mysql_native_password BY 'D3v%pps1234';
+GRANT REPLICATION SLAVE ON *.* TO 'replica@172.31.%.%';
+FLUSH PRIVILEGES;
+
+SHOW MASTER STATUS\G
+
+    File: mysql-binlog.000001
+    Position: 3231
+
+
+replica-server
+
+CHANGE MASTER TO MASTER_HOST='172.31.44.248',
+    MASTER_USER='replica',
+    MASTER_PASSWORD='D3v%ps1234',
+    MASTER_LOG_FILE='mysql-binlog.000001',
+    MASTER_LOG_POS=3231;
+
+START REPLICA;
+
+SHOW REPLICA STATUS\G
